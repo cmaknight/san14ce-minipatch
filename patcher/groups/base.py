@@ -12,6 +12,13 @@ class Group:
     implemented = False
     blocked = None  # 적용을 막는 이유. 대상 파일은 계속 원본 복원 대상이다
     dll_flag = None  # 설정 파일에 쓸 키. None이면 DLL 기능 없음
+    num = None  # 화면에 보일 번호(없으면 id)
+    exclusive = ()  # 함께 적용할 수 없는 그룹 id
+    preferred = False  # 함께 쓸 수 없는 묶음에서 '모두 선택' 때 고를 것
+
+    @property
+    def shown_num(self):
+        return self.num or str(self.id)
 
     @property
     def label(self):

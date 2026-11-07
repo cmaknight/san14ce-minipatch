@@ -8,6 +8,6 @@ set SRC=%~dp0
 set OUT=%~dp0..\..\out\dll
 if not exist "%OUT%" mkdir "%OUT%"
 cl /nologo /O2 /MT /W4 /WX /utf-8 /GS- /LD /Fo"%OUT%\\" /Fe"%OUT%\dinput8.dll" ^
-  "%SRC%main.c" "%SRC%support.c" "%SRC%feat_jeodol.c" "%SRC%feat_autosearch.c" "%SRC%feat_autosearch_ui.c" "%SRC%feat_tooltip.c" "%SRC%feat_expert.c" "%SRC%feat_post.c" "%SRC%feat_train.c" "%SRC%feat_logs.c" "%SRC%feat_logwnd.c" "%SRC%feat_develop.c" ^
+  "%SRC%main.c" "%SRC%support.c" "%SRC%feat_jeodol.c" "%SRC%feat_autosearch.c" "%SRC%feat_autosearch_ui.c" "%SRC%feat_tooltip.c" "%SRC%feat_expert.c" "%SRC%feat_post.c" "%SRC%feat_train.c" "%SRC%feat_logs.c" "%SRC%feat_logwnd.c" "%SRC%feat_develop.c" "%SRC%feat_intercept.c" "%SRC%feat_turn.c" ^
   /link /DEF:"%SRC%dinput8.def" /NOLOGO kernel32.lib user32.lib || exit /b 1
 echo built: %OUT%\dinput8.dll

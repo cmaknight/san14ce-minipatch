@@ -1,4 +1,4 @@
-"""LWC 압축 블록 해제·압축. 형식은 docs/data-formats.md 참고.
+"""LWC 압축 블록 해제·압축.
 
 블록 구조: "LWC\\x1a", u32 usize, u32 csize, u8 dict[256], u8 bits[csize] (MSB 우선).
 """
@@ -170,7 +170,7 @@ class _BitWriter:
         return bytes(self.out)
 
 
-# 원본 압축기 출력의 한도(docs/data-formats.md). 원본과 같은 범위로 맞춘다.
+# 원본 압축기 출력의 한도. 원본과 같은 범위로 맞춘다.
 # 이 한도만으로는 게임의 DATA ERROR가 사라지지 않는다(fixdata는 헤더 서명도 맞춰야 한다).
 MAX_DIST = 8191
 MAX_LEN = 512

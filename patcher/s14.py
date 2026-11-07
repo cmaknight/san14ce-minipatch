@@ -29,7 +29,7 @@ def signature_ok(header, payload):
 MAGIC = b'SN14'
 
 # DLC 시나리오(DLC/0010_*/scedaexceNN.s14)는 파일 전체를 XOR 키 스트림으로 감쌌다. seed = DLC_ID + 시나리오 번호.
-# DLC_ID는 exe의 DLC 표에서 구한다(docs/data-formats.md). 같은 함수로 풀고 싼다.
+# DLC_ID는 exe의 DLC 표에서 구한다. 같은 함수로 풀고 싼다.
 # CE exe(1.0.1)의 DLC 표: 시나리오 번호 → DLC_ID. 10·32·33만 우리 사본에 있고 11·19·29는 파일을 본 적이 없다.
 DLC_SCENARIOS = {10: 1198830, 11: 1198831, 19: 1258154, 29: 1431480, 32: 4598950, 33: 4598960}
 DLC_IDS = tuple(sorted(set(DLC_SCENARIOS.values()) | {1198832}))  # 1198832 = 구판 sceda15

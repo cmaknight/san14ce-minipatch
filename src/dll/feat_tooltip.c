@@ -1,6 +1,8 @@
-/* 그룹 4: 무장 목록(CCmnInfoList<CPersonData>)의 개성·전법 칸에 마우스를 올리면 설명 말풍선. 근거는 docs/04-tooltip.md.
+/* 그룹 4: 무장 목록(CCmnInfoList<CPersonData>)의 개성·전법 칸에 마우스를 올리면 설명 말풍선. 기능 설명은 docs/04-tooltip.md.
 
-정보 > 무장 목록과 각 기능의 무장 선택 목록이 같은 목록 부품을 쓴다. 무장 상세처럼 원래 툴팁이 있는 화면은 건드리지 않는다.
+정보 > 무장 목록과 각 기능의 무장 선택 목록, 사실무장 편집이 같은 목록 부품을 쓴다. 무장 상세처럼 원래 툴팁이 있는 화면은 건드리지 않는다.
+2026-11-05: 같은 템플릿의 신무장 편집 목록(CEditPersonData), 개성 고르기(CPersonalityData), 전법 목록(CTacticsData,
+편집의 전법 고르기와 정보 > 전법)에도 건다. 슬롯 1/5/8 함수가 같다. 행 자체가 개성·전법인 목록은 그 행의 어느 칸에서나 띄운다.
 매 프레임: 목록의 갱신 슬롯(vtable 0x13ACF30 슬롯 1)에서
   1) 마우스 아래 위젯이 이 목록 현재 탭 본문의 행인지 확인하고, 행 → 데이터 인덱스(0xAE0370) → 무장
   2) 헤더 버튼을 x로 히트테스트해 보이는 열 → 탭의 열 ID → 열 정의(0x60 B)의 값 함수
@@ -17,33 +19,35 @@
 #include <wchar.h>
 
 enum {
-    VT_LIST = 0x13ACF30,
-    SLOT_UPDATE = VT_LIST + 1 * 8, FN_UPDATE = 0x92AD0,
-    SLOT_CLOSE = VT_LIST + 5 * 8, FN_CLOSE = 0x8FBD40,
-    SLOT_DISABLE = VT_LIST + 8 * 8, FN_DISABLE = 0x7C9080,
-    UI_MANAGER = 0x1B62110,      /* +0x170 마우스 아래 위젯, +0x18C ≠ 0이면 없음 */
-    FN_INPUT = 0x11290,          /* 입력 상태: +0x34 x, +0x38 y */
-    FN_ROW_INDEX = 0xAE0370,     /* int (scroll, 화면 행) → 데이터 인덱스 */
-    FN_VALID = 0x32F500,
-    FN_TRAIT_DESC = 0x3594B0,    /* const wchar_t* (개성 객체) */
-    FN_NEW = 0x3F6BC0,
-    FN_LAYOUT_CTOR = 0x864C50,
-    FN_RES_CTOR = 0x92AB70,
-    VT_BALLOON = 0x139C540,
-    FN_BALLOON_INIT = 0x89C320,
-    FN_ALPHA = 0x8A18C0,
-    FN_BALLOON_TEXT = 0x8A2140,
-    FN_BALLOON_PLACE = 0x8A5D60,
+    VT_LIST = 0x13AFFA0, /* CCmnInfoList<CPersonData>: 정보 > 무장, 기능별 무장 선택, 사실무장 편집 */
+    /* 2026-11-05: 같은 템플릿의 다른 목록(슬롯 1/5/8이 같은 함수) */
+    VT_LIST_EDIT_PERSON = 0x13F2DB0, /* CCmnInfoList<CEditPersonData>: 신무장 편집 */
+    VT_LIST_TRAIT = 0x13F29D0,       /* CCmnInfoList<CPersonalityData>: 개성 고르기 */
+    VT_LIST_TACTIC = 0x13F6B28,      /* CCmnInfoList<CTacticsData>: 전법 고르기, 정보 > 전법 */
+    FN_UPDATE = 0x8CA1C0, FN_CLOSE = 0x546A70, FN_DISABLE = 0x5B6E10, /* 슬롯 1 / 5 / 8 */
+    UI_MANAGER = 0x1B65160,      /* +0x170 마우스 아래 위젯, +0x18C ≠ 0이면 없음 */
+    FN_INPUT = 0x111F0,          /* 입력 상태: +0x34 x, +0x38 y */
+    FN_ROW_INDEX = 0xAE2ED0,     /* int (scroll, 화면 행) → 데이터 인덱스 */
+    FN_VALID = 0x331780,
+    FN_TRAIT_DESC = 0x35B940,    /* const wchar_t* (개성 객체) */
+    FN_NEW = 0x3F90E0,
+    FN_LAYOUT_CTOR = 0x866FA0,
+    FN_RES_CTOR = 0x92D020,
+    VT_BALLOON = 0x139F580,
+    FN_BALLOON_INIT = 0x89E550,
+    FN_ALPHA = 0x8A3AC0,
+    FN_BALLOON_TEXT = 0x8A4380,
+    FN_BALLOON_PLACE = 0x8A7F60,
     ROOT_TRAITS = 0x7DD18,
     TRAIT_MAX = 0x162,
     ROOT_TACTICS = 0x774D0,      /* 전법 객체 id 0~0xC8, +0x10 이름 */
     TACTIC_MAX = 0xC8,
-    FN_TBALLOON_CTOR = 0x89A300, /* CTacticsBalloonFullLayout, 0x1A8 B */
-    FN_TBALLOON_SET = 0x8A1330,  /* (말풍선, 전법 객체): +0x178에 넣고 다시 그림(0x8A2B50) */
-    SITE_EFFECT_TEXT = 0x8A2E18, /* 0x8A2B50 안의 call 0x930D20(효과 이름) */
-    FN_CHILD_TEXT = 0x930D20,    /* (레이아웃+0x130, 자식 ID, 글자, 1) */
-    FN_TACTIC_AMOUNT = 0x341000, /* int (전법, 효과 0/1): 효과량. 0이면 목록에 "-" */
-    FN_TACTIC_KEY = 0x22E0A0,    /* 전법 덮어쓰기 값 getter의 넷째 인자 */
+    FN_TBALLOON_CTOR = 0x89C5A0, /* CTacticsBalloonFullLayout, 0x1A8 B */
+    FN_TBALLOON_SET = 0x8A3570,  /* (말풍선, 전법 객체): +0x178에 넣고 다시 그림(0x8A2B50) */
+    SITE_EFFECT_TEXT = 0x8A5058, /* 0x8A2B50 안의 call 0x930D20(효과 이름) */
+    FN_CHILD_TEXT = 0x9332B0,    /* (레이아웃+0x130, 자식 ID, 글자, 1) */
+    FN_TACTIC_AMOUNT = 0x3432E0, /* int (전법, 효과 0/1): 효과량. 0이면 목록에 "-" */
+    FN_TACTIC_KEY = 0x22FB30,    /* 전법 덮어쓰기 값 getter의 넷째 인자 */
 };
 
 enum { KIND_NONE, KIND_TRAIT, KIND_TACTIC };
@@ -129,6 +133,20 @@ static void *hovered_obj(uint8_t *list, int mx, int my, int *kind)
     if (idx < 0 || idx >= *(int *)(body + 0x1A0) || !items || !items[idx])
         return NULL;
     void *person = items[idx];
+    uint8_t *root = game_root();
+    if (!root)
+        return NULL;
+    /* 행 자체가 개성·전법인 목록(개성·전법 고르기, 정보 > 전법)은 그 행의 어느 칸에서나 */
+    for (int t = 1; t <= TRAIT_MAX; t++)
+        if (person == *(void **)(root + ROOT_TRAITS + (size_t)t * 8)) {
+            *kind = KIND_TRAIT;
+            return CALL(IntFn, FN_VALID)(person) ? person : NULL;
+        }
+    for (int t = 0; t <= TACTIC_MAX; t++)
+        if (person == *(void **)(root + ROOT_TACTICS + (size_t)t * 8)) {
+            *kind = KIND_TACTIC;
+            return CALL(IntFn, FN_VALID)(person) ? person : NULL;
+        }
 
     /* x → 보이는 열 → 열 정의 */
     uint8_t **hb = *(uint8_t ***)(list + 0x210), **he = *(uint8_t ***)(list + 0x218);
@@ -158,8 +176,7 @@ static void *hovered_obj(uint8_t *list, int mx, int my, int *kind)
     void *text = getter(person);
 
     /* 글자 포인터 → 개성·전법 */
-    uint8_t *root = game_root();
-    if (!root || !text)
+    if (!text)
         return NULL;
     for (int t = 1; t <= TRAIT_MAX; t++) {
         uint8_t *o = *(uint8_t **)(root + ROOT_TRAITS + (size_t)t * 8);
@@ -405,16 +422,29 @@ static uint64_t __fastcall disable_hook(void *list, void *a, void *b, void *c)
     return CALL(Fn4, FN_DISABLE)(list, a, b, c);
 }
 
-int feat_tooltip_init(void)
+static const uint32_t LISTS[] = {VT_LIST, VT_LIST_EDIT_PERSON, VT_LIST_TRAIT, VT_LIST_TACTIC};
+static const char *const LIST_NAME[] = {"무장 목록", "신무장 편집 목록", "개성 고르기 목록", "전법 목록"};
+
+/* 목록 vtable 하나의 슬롯 1/5/8을 바꾼다. 하나라도 실패하면 그 목록은 되돌린다 */
+static int hook_list(uint32_t vt)
 {
-    if (!vtable_swap(SLOT_UPDATE, FN_UPDATE, (void *)update_hook))
+    if (!vtable_swap(vt + 1 * 8, FN_UPDATE, (void *)update_hook))
         return 0;
-    if (!vtable_swap(SLOT_CLOSE, FN_CLOSE, (void *)close_hook) ||
-        !vtable_swap(SLOT_DISABLE, FN_DISABLE, (void *)disable_hook)) {
-        vtable_unswap(SLOT_UPDATE, (void *)update_hook, FN_UPDATE);
-        vtable_unswap(SLOT_CLOSE, (void *)close_hook, FN_CLOSE);
+    if (!vtable_swap(vt + 5 * 8, FN_CLOSE, (void *)close_hook) || !vtable_swap(vt + 8 * 8, FN_DISABLE, (void *)disable_hook)) {
+        vtable_unswap(vt + 1 * 8, (void *)update_hook, FN_UPDATE);
+        vtable_unswap(vt + 5 * 8, (void *)close_hook, FN_CLOSE);
         return 0;
     }
+    return 1;
+}
+
+int feat_tooltip_init(void)
+{
+    if (!hook_list(VT_LIST))
+        return 0;
+    for (int i = 1; i < (int)(sizeof LISTS / sizeof LISTS[0]); i++)
+        if (!hook_list(LISTS[i]))
+            plog("[개성 툴팁] %s 연결 못 함(원래 바이트 다름). 그 목록만 툴팁 없음", LIST_NAME[i]);
     Patch p;
     if (patch_call(&p, SITE_EFFECT_TEXT, FN_CHILD_TEXT, (void *)effect_text_hook))
         patch_apply("전법 효과량·범위 표시", &p, 1);

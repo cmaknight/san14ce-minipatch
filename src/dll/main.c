@@ -1,6 +1,6 @@
 /* 프록시 진입점. dinput8.dll 이름으로 게임 폴더에 두면 게임이 먼저 이 DLL을 올린다.
 
-DllMain 시점에는 SteamStub이 .text를 아직 복호화하지 않았다(docs/00-overview.md). 그래서 DllMain에서는 아무것도 하지 않고,
+DllMain 시점에는 SteamStub이 .text를 아직 복호화하지 않았다. 그래서 DllMain에서는 아무것도 하지 않고,
 게임이 처음 DirectInput8Create를 부를 때(복호화 이후) 한 번만 초기화한다. 예비로 복호화를 기다리는 스레드도 둔다.
 */
 #include "common.h"
@@ -24,11 +24,11 @@ static HMODULE real_dinput8(void)
     return g_real;
 }
 
-/* .text 복호화 여부: 알려진 원본 바이트(0x21064E mov edx, 100) */
+/* .text 복호화 여부: 알려진 원본 바이트(1.0.2 0x211F0D mov edx, 100. 1.0.1은 0x21064E) */
 static int text_decrypted(void)
 {
     static const uint8_t want[] = {0xBA, 0x64, 0x00, 0x00, 0x00};
-    return bytes_equal(0x21064E, want, sizeof want);
+    return bytes_equal(0x211F0D, want, sizeof want);
 }
 
 static int check_build(void)
@@ -48,9 +48,9 @@ static BOOL CALLBACK init_once(PINIT_ONCE o, PVOID p, PVOID *c)
     (void)o; (void)p; (void)c;
     log_open();
     config_load();
-    plog("san14patch DLL 시작: 숙련=%d 개성=%d 자동탐색=%d 툴팁=%d 안개=%d 로그=%d 관직=%d 훈련비=%d 내정=%d",
+    plog("san14patch DLL 시작: 숙련=%d 개성=%d 자동탐색=%d 툴팁=%d 안개=%d 로그=%d 관직=%d 훈련비=%d 내정=%d 출진개선=%d",
          g_cfg.expert_scaling, g_cfg.trait_balance, g_cfg.auto_search, g_cfg.trait_tooltip, g_cfg.fog_of_war,
-         g_cfg.log_plus, g_cfg.post_busy, g_cfg.train_cost, g_cfg.even_develop);
+         g_cfg.log_plus, g_cfg.post_busy, g_cfg.train_cost, g_cfg.even_develop, g_cfg.ai_intercept_v3);
     if (!check_build())
         return TRUE;
     if (!text_decrypted()) {
@@ -75,6 +75,8 @@ static BOOL CALLBACK init_once(PINIT_ONCE o, PVOID p, PVOID *c)
         feat_train_init();
     if (g_cfg.even_develop)
         feat_develop_init();
+    if (g_cfg.ai_intercept_v3)
+        feat_intercept_init();
     return TRUE;
 }
 

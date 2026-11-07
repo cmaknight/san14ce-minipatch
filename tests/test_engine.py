@@ -12,7 +12,7 @@ from patcher.lwc import find_block, unlwc
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.join(ROOT, 'game-copy')
 KO = '0010_KO/fixdataexce.s14'
-# 해제 스트림 오프셋(docs/05-formation.md): 봉시 방어, 학익 방어
+# 해제 스트림 오프셋: 봉시 방어, 학익 방어
 KO_OFFSETS = {0x2D5BF: (18, 20), 0x2D787: (30, 36)}
 
 
@@ -113,14 +113,14 @@ class EngineTest(unittest.TestCase):
 
     @unittest.skipUnless(dll.available(), 'DLL 빌드 없음')
     def test_dll_flags(self):
-        self.apply([1, 6, 7, 8, 9])
+        self.apply([1, 6, 7, 8, 9, 10])
         with open(os.path.join(self.game, dll.CONFIG_NAME), encoding='utf-8') as f:
             lines = set(f.read().split())
-        for k in ['expert_scaling', 'log_plus', 'post_busy', 'train_cost', 'even_develop']:
+        for k in ['expert_scaling', 'log_plus', 'post_busy', 'train_cost', 'even_develop', 'ai_intercept_v3']:
             self.assertIn(f'{k}=1', lines)
         for k in ['trait_balance', 'auto_search', 'trait_tooltip', 'fog_of_war']:
             self.assertIn(f'{k}=0', lines)
-        self.assertEqual(self.eng.applied_ids(), [1, 6, 7, 8, 9])
+        self.assertEqual(self.eng.applied_ids(), [1, 6, 7, 8, 9, 10])
         self.apply([])
         self.assertFalse(os.path.exists(os.path.join(self.game, dll.DLL_NAME)))
         self.assertFalse(os.path.exists(os.path.join(self.game, dll.CONFIG_NAME)))

@@ -1,4 +1,4 @@
-/* 그룹 7: 이동·임무 중 장수 관직 임명. 근거는 docs/07-post.md.
+/* 그룹 7: 이동·임무 중 장수 관직 임명. 기능 설명은 docs/07-post.md.
 
 관직 화면(CStrategyPostState)은 행동 중 판정 0x232240으로 무장을 고를 수 없게 하고(0x72D385),
 보유자가 행동 중인 관직을 잠근다(0x72D9DB). 이 두 호출만 감싸 이동·임무 중이면 허용한다.
@@ -8,9 +8,9 @@
 #include "common.h"
 
 enum {
-    FN_BUSY = 0x232240,
-    SITE_PICK = 0x72D385, SITE_LOCK = 0x72D9DB,
-    FN_ACTION = 0x22AA70, FN_VALID = 0x32F500,
+    FN_BUSY = 0x233BE0,
+    SITE_PICK = 0x72F805, SITE_LOCK = 0x72FE5B,
+    FN_ACTION = 0x22C4B0, FN_VALID = 0x331780,
     LOC_UNIT_MIN = 0x3E, LOC_UNIT_MAX = 0x231,
     ACT_DISAPPEAR = 0x10,
 };

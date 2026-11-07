@@ -28,10 +28,16 @@ void log_open(void)
     CreateDirectoryW(path, NULL);
     lstrcatW(path, L"\\dll.log");
     g_log = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    /* 실행마다 시작 줄과 실패만 남지만 이어 쓰기라, 1 MB를 넘으면 비우고 새로 쓴다 */
+    /* 이어 쓰기라, 시작할 때 1 MB를 넘으면 dll.prev.log로 옮기고(있으면 덮어씀) 새로 쓴다(2026-11-02: 관전 로그가
+       모든 세력으로 늘어 한 판이 1 MB를 넘으므로 바로 앞 실행 로그는 남긴다) */
     LARGE_INTEGER size;
     if (g_log != INVALID_HANDLE_VALUE && GetFileSizeEx(g_log, &size) && size.QuadPart > 1024 * 1024) {
+        wchar_t prev[MAX_PATH];
+        lstrcpyW(prev, path);
+        lstrcpyW(prev + lstrlenW(prev) - 4, L".prev.log");
         CloseHandle(g_log);
+        if (!MoveFileExW(path, prev, MOVEFILE_REPLACE_EXISTING))
+            DeleteFileW(path);
         g_log = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     }
 }
@@ -73,6 +79,7 @@ void config_load(void)
     g_cfg.post_busy = GetPrivateProfileIntW(L"groups", L"post_busy", 0, ini);
     g_cfg.train_cost = GetPrivateProfileIntW(L"groups", L"train_cost", 0, ini);
     g_cfg.even_develop = GetPrivateProfileIntW(L"groups", L"even_develop", 0, ini);
+    g_cfg.ai_intercept_v3 = GetPrivateProfileIntW(L"groups", L"ai_intercept_v3", 0, ini);
 }
 
 int bytes_equal(uint32_t rva, const void *want, size_t n)
@@ -126,21 +133,24 @@ void *near_alloc(size_t n, DWORD prot)
     return NULL;
 }
 
-/* 중계기: 이미지 근처에 페이지를 잡고 14바이트씩 나눠 쓴다 */
+/* 중계기: 이미지 근처에 페이지를 잡고 14바이트씩(16 간격) 나눠 쓴다. 10-3이 호출 지점 40여 곳을 더해 4페이지로 */
+#define RELAY_BYTES 0x4000
 static uint8_t *g_relay_page;
 static size_t g_relay_used;
 
 uint8_t *relay_new(void *target)
 {
     if (!g_relay_page) {
-        g_relay_page = near_alloc(0x1000, PAGE_EXECUTE_READWRITE);
+        g_relay_page = near_alloc(RELAY_BYTES, PAGE_EXECUTE_READWRITE);
         if (!g_relay_page) {
             plog("중계기 페이지를 이미지 근처에 잡지 못함");
             return NULL;
         }
     }
-    if (g_relay_used + 16 > 0x1000)
+    if (g_relay_used + 16 > RELAY_BYTES) {
+        plog("중계기 칸이 모자람");
         return NULL;
+    }
     uint8_t *r = g_relay_page + g_relay_used;
     g_relay_used += 16;
     r[0] = 0xFF;

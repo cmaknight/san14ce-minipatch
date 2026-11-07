@@ -1,27 +1,29 @@
-"""지원 게임 버전. 버전별 값은 docs/00-overview.md."""
+"""지원 게임 버전."""
 import json
 import os
 
 # GUI 제목의 "(X 버전 패치 대응)". 지원 버전을 추가하면 같이 올린다
-SUPPORTED = '1.0.1'
+SUPPORTED = '1.0.2'
 # 패처 자체 버전(창 제목, 배포 zip 이름). 배포할 때 올린다
-PATCHER_VERSION = '1.2'
+PATCHER_VERSION = '1.3'
 
 VERSIONS = {
-    'A': {
-        'label': '공식 1.0.1',
+    'B': {
+        'label': '공식 1.0.2',
         'files': {
-            'SAN14CE.exe': 'f4b8268eedc0aa5f21efa9597d2bb4d6045b185fabcea740fed4ad6f1a163030',
-            'SAN14CE_KO.exe': '87ed4e46590e0939c9efcaef14fa0f892917604dfda86e0a4be319fccffa2d6a',
-            'SAN14CE_SC.exe': 'ceee6a94eb939b40c329b8ec5aecd938e9d3a51a6663e8e7d27a1498627afb88',
-            'SAN14CE_TC.exe': '0751b4fed7a5783371b9541674c0587a6afd3140e60e706e32eaf35a9432f464',
-            '0010_JP/fixdataexce.s14': '7810ddea9005b62e4b450bea5b8b98bdbc579016e66e854a7010d4b3b63f644c',
-            '0010_KO/fixdataexce.s14': 'd3fac398d257407dcd81b0620bfd23f0956c3382c8926a5bd7ee4913da105a25',
-            '0010_SC/fixdataexce.s14': 'e5467c718534597927b8e21d572ddd947f65961edb359c9dc5d2ebc492e1ebba',
-            '0010_TC/fixdataexce.s14': 'e5da4d26b194f1268278106b47228a1fb631f1e91d83c2c99605bab4a035e0a4',
+            'SAN14CE.exe': 'e18bfbb4eeb34195b79e12f096396eb5cee556e3174e549804702544187a325b',
+            'SAN14CE_KO.exe': '782cf229a56cdde2b95399e0e7536740b3f5e96bea702679365e4dad061abdce',
+            'SAN14CE_SC.exe': '2e49348aa1b9be5cfca651e71c8d77b2e4bd2d11387edc0b0236f4352458a239',
+            'SAN14CE_TC.exe': 'e4be0f6c0ea3feec02f05e725a7a6be84d70cd1cc0bb96931a3656fbac125810',
+            '0010_JP/fixdataexce.s14': '849d0e88501b80a4f0a04f8674739f9119be19d8b6006aaa592cd1105e8b1134',
+            '0010_KO/fixdataexce.s14': 'bbcf4f5023b9e870f0c51e6f37b0f95401abe6e32ec29fddd75fdba52d4c07b7',
+            '0010_SC/fixdataexce.s14': 'e158a7bac71969119780afc819415da6d15efb693c62aa997f77a7a22f222d1c',
+            '0010_TC/fixdataexce.s14': '678eaabddd2c400e1a3412b500e521c478d749f7853d72ca4b7112d4040eb93f',
         },
     },
 }
+# 1.0.1(버전 A)은 v1.3부터 지원하지 않는다. 1.0.1에서 적용한 설치 폴더의 옛 백업은
+# core.base()가 현재 파일(1.0.2 원본)을 새 원본으로 보고 백업을 다시 쓴다.
 
 # 시나리오처럼 개수가 많은 대상 파일의 원본 해시. 원본 설치 폴더의 파일 SHA-256을 모아 만든다.
 KNOWN_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'known_files.json')

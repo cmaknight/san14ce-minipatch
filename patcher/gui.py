@@ -25,6 +25,9 @@ class App:
         self.root = root
         self.groups = [g for g in GROUPS if g.implemented]
         self.vars = {g.id: tk.BooleanVar() for g in self.groups}
+        for g in self.groups:
+            if g.exclusive:
+                self.vars[g.id].trace_add('write', lambda *_, g=g: self.on_toggle(g))
         self.logq = queue.Queue()
         self.busy = False
         self.pending = None
@@ -124,7 +127,7 @@ class App:
             v = self.vars[g.id]
             cells = [tk.Checkbutton(inner, variable=v, bg=CELL_BG, activebackground=CELL_BG, bd=0,
                                     highlightthickness=0),
-                     tk.Label(inner, text=str(g.id), bg=CELL_BG, anchor='center', padx=pad, pady=6),
+                     tk.Label(inner, text=g.shown_num, bg=CELL_BG, anchor='center', padx=pad, pady=6),
                      tk.Label(inner, text=g.label, bg=CELL_BG, anchor='w', padx=pad, pady=6),
                      tk.Label(inner, text=g.desc, bg=CELL_BG, anchor='w', justify='left', padx=pad, pady=6,
                               wraplength=self.desc_w - 2 * pad)]
@@ -184,7 +187,8 @@ class App:
         if res['product']:
             parts.append(f'설치된 게임: {res["product"]}')
         if res['ok'] or res['applied']:
-            parts.append('현재 적용: ' + (', '.join(map(str, res['applied'])) or '없음(원본)'))
+            shown = {g.id: g.shown_num for g in self.groups}
+            parts.append('현재 적용: ' + (', '.join(shown.get(i, str(i)) for i in res['applied']) or '없음(원본)'))
         self.status.config(text='   ·   '.join(parts), fg=OK_COLOR if res['ok'] else BAD_COLOR)
         self.ok = res['ok']
         if res.get('running') and not self.pending:  # 게임을 끄면 자동으로 다시 검사
@@ -202,8 +206,15 @@ class App:
     # --- 적용 ---
 
     def set_all(self, on):
-        for v in self.vars.values():
-            v.set(on)
+        for g in self.groups:  # 함께 쓸 수 없는 묶음은 preferred만 켠다
+            self.vars[g.id].set(on and (not g.exclusive or g.preferred))
+
+    def on_toggle(self, g):
+        """함께 쓸 수 없는 그룹을 켜면 다른 쪽을 끈다"""
+        if self.vars[g.id].get():
+            for j in g.exclusive:
+                if j in self.vars:
+                    self.vars[j].set(False)
 
     def apply(self):
         ids = [gid for gid, v in self.vars.items() if v.get()]

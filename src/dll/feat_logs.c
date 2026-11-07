@@ -1,4 +1,4 @@
-/* 그룹 6: 로그 기능 보강(로그 줄). 근거는 docs/06-logs.md. 로그 창은 feat_logwnd.c.
+/* 그룹 6: 로그 기능 보강(로그 줄). 기능 설명은 docs/06-logs.md. 로그 창은 feat_logwnd.c.
 
 로그 줄은 게임 로그 기록기 0x934400(CLogManager 0x16EFC0)으로 쓴다. 메인 로그와 로그 목록에 함께 남는다.
 기록기는 이벤트 중(`[0x27842A0]+0x1B0 != 0`) 아무것도 쓰지 않으므로, 우리가 쓰는 동안만 그 값을 0으로 내린다.
@@ -21,19 +21,19 @@
 #include <wchar.h>
 
 enum {
-    FN_LOG = 0x934400, FN_LOG_MGR = 0x16EFC0,
-    MSG_BUILDER = 0x1A23440, B_PERSON0 = 0x1CD8, B_FORCE0 = 0x1D00, B_PLACE0 = 0x1DC8,
-    EMPTY_STR_PTR = 0x1A47B98, EVENT_PTR = 0x27842A0, EVENT_BLOCK = 0x1B0,
+    FN_LOG = 0x936980, FN_LOG_MGR = 0x16FF70,
+    MSG_BUILDER = 0x1A26440, B_PERSON0 = 0x1CD8, B_FORCE0 = 0x1D00, B_PLACE0 = 0x1DC8,
+    EMPTY_STR_PTR = 0x1A4AB88, EVENT_PTR = 0x27872F0, EVENT_BLOCK = 0x1B0,
     ROOT_WORLD = 0x871E8, WORLD_DATE = 0x450, ROOT_CITIES = 0xDD38, NO_PERSON = 0x1394,
-    FN_VALID = 0x32F500, FN_FORCE_OF = 0x22CA00, FN_IS_PLAYER = 0x2337B0,
-    FN_LOCATION = 0x22D580, FN_POS = 0x22DDA0, FN_REGION_IDX = 0x22D9E0, FN_DIRECT_CORPS = 0x32E8D0,
-    LV_TABLE = 0x13A6D9C,
+    FN_VALID = 0x331780, FN_FORCE_OF = 0x22E450, FN_IS_PLAYER = 0x235150,
+    FN_LOCATION = 0x22EFD0, FN_POS = 0x22F830, FN_REGION_IDX = 0x22F470, FN_DIRECT_CORPS = 0x330B50,
+    LV_TABLE = 0x13A9DDC,
     /* 사망 */
-    SITE_DEATH_ENTRY = 0x295B03, FN_DEATH_ENTRY = 0x32C130,
-    SITE_GATE_JE = 0x295C61, DEATH_SKIP = 0x296535, DEATH_LOG = 0x295FD6,
-    SITE_DEATH_LOG_A = 0x296172, SITE_DEATH_LOG_B = 0x2963D3,
+    SITE_DEATH_ENTRY = 0x297A13, FN_DEATH_ENTRY = 0x32E3B0,
+    SITE_GATE_JE = 0x297B71, DEATH_SKIP = 0x298445, DEATH_LOG = 0x297EE6,
+    SITE_DEATH_LOG_A = 0x298082, SITE_DEATH_LOG_B = 0x2982E3,
     /* 포로 */
-    SITE_EVENT_CAPTURE = 0x3AB312, FN_CAPTURE = 0x2E0CF0,
+    SITE_EVENT_CAPTURE = 0x3AE6B2, FN_CAPTURE = 0x2E3020,
     MSG_CAPTURED = 0x87E1, MSG_ALL_MAX = 0x5F84,
     ST_PRISONER = 6, ST_UNAPPEARED = 7, ST_UNFOUND = 8,
 };
@@ -110,10 +110,10 @@ static U __fastcall death_entry_hook(U root, U id)
 
 #define REL_HOOK(name, rva)                                                                                        \
     static U __fastcall name(U a, U b) { return g_death_flag && *g_death_flag ? 0 : CALL(Fn2, rva)(a, b); }
-REL_HOOK(rel_hook1, 0x2C9BD0)
-REL_HOOK(rel_hook2, 0x2C8AC0)
-REL_HOOK(rel_hook3, 0x2767E0)
-REL_HOOK(rel_hook4, 0x232EE0)
+REL_HOOK(rel_hook1, 0x2CBF80)
+REL_HOOK(rel_hook2, 0x2CAE70)
+REL_HOOK(rel_hook3, 0x278110)
+REL_HOOK(rel_hook4, 0x234880)
 
 static U __fastcall death_log_hook(U a1, U a2, U a3, U a4, U a5, U a6, U a7, U a8, U a9, U a10, U a11, U a12, U a13)
 {
@@ -172,8 +172,8 @@ static int setup_death(void)
     n++;
     static const struct { uint32_t site, fn; void *hook; } S[] = {
         {SITE_DEATH_ENTRY, FN_DEATH_ENTRY, (void *)death_entry_hook},
-        {0x29640E, 0x2C9BD0, (void *)rel_hook1}, {0x29641D, 0x2C8AC0, (void *)rel_hook2},
-        {0x29642C, 0x2767E0, (void *)rel_hook3}, {0x29643B, 0x232EE0, (void *)rel_hook4},
+        {0x29831E, 0x2CBF80, (void *)rel_hook1}, {0x29832D, 0x2CAE70, (void *)rel_hook2},
+        {0x29833C, 0x278110, (void *)rel_hook3}, {0x29834B, 0x234880, (void *)rel_hook4},
         {SITE_DEATH_LOG_A, FN_LOG, (void *)death_log_hook}, {SITE_DEATH_LOG_B, FN_LOG, (void *)death_log_hook},
     };
     for (int i = 0; i < (int)(sizeof S / sizeof S[0]); i++)
@@ -283,25 +283,25 @@ static void dev_check(uint8_t *region, int kind, int before)
         }                                                                                                          \
         return ret;                                                                                                \
     }
-DEV_HOOK(commerce_hook, 0x240B20, 0)
-DEV_HOOK(farm_hook, 0x2410C0, 1)
-DEV_HOOK(barracks_hook, 0x241AA0, 2)
+DEV_HOOK(commerce_hook, 0x2424C0, 0)
+DEV_HOOK(farm_hook, 0x242A60, 1)
+DEV_HOOK(barracks_hook, 0x243440, 2)
 
 static int setup_domestic(void)
 {
-    /* 세터별 호출처(UI 0x621C70·0x621DA0 제외). docs/06-logs.md */
-    static const uint32_t COMMERCE[] = {0x17500F, 0x1FC28F, 0x28E07F, 0x2955FD, 0x29D88B,
-                                        0x2EC1A1, 0x3AD019, 0x3BE638, 0x41495C, 0x43CD1B};
-    static const uint32_t FARM[] = {0x175032, 0x1FC2BF, 0x28E0A4, 0x295632, 0x29D8C2,
-                                    0x2EC191, 0x3AA9C9, 0x3BD178, 0x41494A, 0x43CD43};
-    static const uint32_t BARRACKS[] = {0x175055, 0x1FC2E9, 0x28E0CA, 0x295667, 0x29D8FB,
-                                        0x2EC181, 0x3AE099, 0x3C0468, 0x414938, 0x43CD6B};
+    /* 세터별 호출처(UI 0x621C70·0x621DA0 제외) */
+    static const uint32_t COMMERCE[] = {0x175FBF, 0x1FD66F, 0x28FE3F, 0x29750D, 0x29F79B,
+                                        0x2EE561, 0x3B03B9, 0x3C1A28, 0x416F7C, 0x43F0BB};
+    static const uint32_t FARM[] = {0x175FE2, 0x1FD69F, 0x28FE64, 0x297542, 0x29F7D2,
+                                    0x2EE551, 0x3ADD69, 0x3C0568, 0x416F6A, 0x43F0E3};
+    static const uint32_t BARRACKS[] = {0x176005, 0x1FD6C9, 0x28FE8A, 0x297577, 0x29F80B,
+                                        0x2EE541, 0x3B1439, 0x3C3858, 0x416F58, 0x43F10B};
     Patch p[30];
     int n = 0;
     for (int i = 0; i < 10; i++)
-        if (!patch_call(&p[n++], COMMERCE[i], 0x240B20, (void *)commerce_hook) ||
-            !patch_call(&p[n++], FARM[i], 0x2410C0, (void *)farm_hook) ||
-            !patch_call(&p[n++], BARRACKS[i], 0x241AA0, (void *)barracks_hook))
+        if (!patch_call(&p[n++], COMMERCE[i], 0x2424C0, (void *)commerce_hook) ||
+            !patch_call(&p[n++], FARM[i], 0x242A60, (void *)farm_hook) ||
+            !patch_call(&p[n++], BARRACKS[i], 0x243440, (void *)barracks_hook))
             return 0;
     return patch_apply("내정 Lv 로그", p, n);
 }

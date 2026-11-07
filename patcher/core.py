@@ -1,4 +1,4 @@
-"""패처 엔진: 원본 백업, 원본 기준 재생성, 상태 기록. 동작 규칙은 docs/00-overview.md."""
+"""패처 엔진: 원본 백업, 원본 기준 재생성, 상태 기록."""
 import ctypes
 import datetime
 import hashlib
@@ -240,6 +240,9 @@ class Engine:
                 raise PatchError(f'그룹 {i}({g.name})는 아직 구현되지 않았다')
             if g.blocked and not self.allow_blocked:
                 raise PatchError(f'그룹 {i}({g.name}) 적용 불가: {g.blocked}')
+            for j in g.exclusive:
+                if j in ids:
+                    raise PatchError(f'함께 적용할 수 없는 패치입니다: {g.shown_num}, {BY_ID[j].shown_num}. 하나만 선택하세요.')
         running = running_games(self.game)
         if running:
             raise PatchError('게임이 실행 중입니다. 게임을 완전히 종료한 뒤 다시 적용하세요.\n' + '\n'.join(running))

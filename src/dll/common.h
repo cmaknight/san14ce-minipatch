@@ -1,12 +1,12 @@
-/* san14patch 프록시 DLL 공통 선언. 구조는 docs/00-overview.md. */
+/* san14patch 프록시 DLL 공통 선언. */
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdint.h>
 
-/* 지원 빌드: SAN14CE_KO.exe 1.0.1 (PE timestamp 0x6A983C25) */
-#define GAME_TIMESTAMP 0x6A983C25u
-#define GAME_IMAGE_SIZE 0x29FF000u
+/* 지원 빌드: SAN14CE_KO.exe 1.0.2 (PE timestamp 0x6AD06F53). 1.0.1(0x6A983C25)은 v1.3부터 지원하지 않는다 */
+#define GAME_TIMESTAMP 0x6AD06F53u
+#define GAME_IMAGE_SIZE 0x2A02000u
 
 extern uint8_t *g_base; /* 게임 이미지 베이스 */
 #define RVA(x) (g_base + (x))
@@ -26,6 +26,7 @@ typedef struct {
     int post_busy;      /* 그룹 7 */
     int train_cost;     /* 그룹 8 */
     int even_develop;   /* 그룹 9 */
+    int ai_intercept_v3;  /* 그룹 10(AI 출진 개선) */
 } Config;
 extern Config g_cfg;
 void config_load(void);
@@ -54,12 +55,12 @@ void vtable_unswap(uint32_t slot_rva, void *ours, uint32_t orig_rva);
 int settings_get_int(const wchar_t *section, const wchar_t *key, int def);
 void settings_set_int(const wchar_t *section, const wchar_t *key, int value);
 
-/* 게임 구조(docs/00-overview.md) */
-#define ROOT_PTR_RVA 0x277DF18u
+/* 게임 구조 */
+#define ROOT_PTR_RVA 0x2780F60u
 static inline uint8_t *game_root(void) { return *(uint8_t **)RVA(ROOT_PTR_RVA); }
 /* 세이브에 저장되는 미사용 칸: 월드([root+0x871E8]) +0x17AC, 4바이트. 게임은 새 게임 초기화(0x325B80)에서
    0으로 채우고 직렬화(0x337A90)만 한다. 바이트별로 나눠 쓴다(0이면 기본값). */
-enum { WX_AUTO_ON = 0, WX_BASE_SELF = 1, WX_BASE_OTHER = 2 };
+enum { WX_AUTO_ON = 0, WX_BASE_SELF = 1, WX_BASE_OTHER = 2, WX_MANUAL = 3 };
 static inline uint8_t *world_extra(void)
 {
     uint8_t *root = game_root();
@@ -77,6 +78,11 @@ int feat_train_init(void);
 int feat_logs_init(void);
 int feat_logwnd_init(void);
 int feat_develop_init(void);
+int feat_intercept_init(void);
+/* 그룹 10 순 처리 훅(feat_turn.c) */
+int feat_turn_init(void);
+int turn_session(void); /* 지금 세션 번호(날짜가 끊기면 새 세션). 어느 스레드에서나 불러도 된다 */
+void intercept_track(void); /* 그룹 10: 순마다 들여보낸 부대·빈 관문 태수·거점 주인 갱신(feat_intercept.c) */
 /* 공용 말풍선(feat_tooltip.c). key가 같으면 글자를 다시 넣지 않는다. */
 void tooltip_show(const void *key, const wchar_t *text);
 void tooltip_hide(const void *key);

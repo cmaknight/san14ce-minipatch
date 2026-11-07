@@ -1,4 +1,4 @@
-/* 그룹 8: 훈련비 비례 차감. 근거는 docs/08-traincost.md.
+/* 그룹 8: 훈련비 비례 차감. 기능 설명은 docs/08-traincost.md.
 
 훈련 0x300E50은 비용 0x266850(도시, 담당)을 한 번 구해 금 검사(0x300ED1)와 차감(0x3010EE)·지출 누계(0x3010F9)에
 그대로 쓴다. 대상(도시와 관할 관문)마다 상승량 0x268EA0이 하나라도 1 이상이면 전액을 낸다.
@@ -13,11 +13,11 @@
 #include "common.h"
 
 enum {
-    FN_COST = 0x266850, FN_GAIN = 0x268F70, FN_MAX_MORALE = 0x22EA10, FN_CITY_OF = 0x22A7B0, FN_VALID = 0x32F500,
-    SITE_TRAIN = 0x300EBA, SITE_GAIN_GOLD = 0x268F10, SITE_FORECAST = 0x2DC763,
+    FN_COST = 0x268200, FN_GAIN = 0x26A920, FN_MAX_MORALE = 0x2304A0, FN_CITY_OF = 0x22C1F0, FN_VALID = 0x331780,
+    SITE_TRAIN = 0x3032AA, SITE_GAIN_GOLD = 0x26A8C0, SITE_FORECAST = 0x2DEA93,
     ROOT_GATES = 0xA0, ROOT_FORCES = 0xDF30,
     /* 게임 공용 목록 노드 풀(0x22CFD0이 ROOT+0xA0을 이렇게 따라간다): 노드 = {데이터, 다음} */
-    POOL_READY = 0x27D10E8, POOL_NODES = 0x27D10F0, POOL_COUNT = 0x27D1120,
+    POOL_READY = 0x27D4138, POOL_NODES = 0x27D4140, POOL_COUNT = 0x27D4170,
 };
 
 typedef int(__fastcall *CostFn)(void *, void *);

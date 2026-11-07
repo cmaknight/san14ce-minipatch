@@ -1,4 +1,4 @@
-/* 그룹 2: 구심·악주 보유 부대 주위 아군 부대의 저돌 효과(효과 ID 1) 무효. 근거는 docs/02-traits.md.
+/* 그룹 2: 구심·악주 보유 부대 주위 아군 부대의 저돌 효과(효과 ID 1) 무효. 기능 설명은 docs/02-traits.md.
 
 게임은 저돌 효과를 "무장 효과 값 합" 0x2B2DA0(무장, 1)로 4곳에서 판정한다(부대 AI, 출진 명령설정 강제,
 명령설정 선택지 2곳). 이 호출 4곳을 우리 함수로 돌려, 원래 값이 0이 아니고 그 무장이 대장인 부대가
@@ -9,14 +9,14 @@
 #include "common.h"
 
 enum {
-    FN_EFFECT_SUM = 0x2B2DA0,  /* int (무장*, 효과 ID) */
-    FN_VALID = 0x32F500,       /* int (객체*) */
-    FN_TRAIT_SLOT = 0x2305D0,  /* int (무장*, 칸 0..8) → 개성 ID */
-    FN_HEX_DIST = 0x2AA850,    /* int (칸, 칸) */
-    FN_UNIT_FORCE = 0x22CC40,  /* int (부대*) */
-    FN_HOSTILE = 0x2CA280,     /* int (세력, 세력) — 0이 아니면 적대 */
-    FN_UNIT_SKIP = 0x233440,   /* int (부대*) — 0이 아니면 범위 효과 대상 아님 */
-    RANGE_RVA = 0x1A48FD8,     /* 연계범위(기본 3) */
+    FN_EFFECT_SUM = 0x2B5120,  /* int (무장*, 효과 ID) */
+    FN_VALID = 0x331780,       /* int (객체*) */
+    FN_TRAIT_SLOT = 0x232030,  /* int (무장*, 칸 0..8) → 개성 ID */
+    FN_HEX_DIST = 0x2ACB80,    /* int (칸, 칸) */
+    FN_UNIT_FORCE = 0x22E690,  /* int (부대*) */
+    FN_HOSTILE = 0x2CC630,     /* int (세력, 세력) — 0이 아니면 적대 */
+    FN_UNIT_SKIP = 0x234DE0,   /* int (부대*) — 0이 아니면 범위 효과 대상 아님 */
+    RANGE_RVA = 0x1A4C024,     /* 연계범위(기본 3) */
     ROOT_GENERALS = 0x158,     /* 무장 포인터 표 */
     ROOT_UNITS = 0x7E838,      /* 부대 포인터 표, 칸 1..500 */
     MAX_GENERAL = 0x1770,
@@ -24,17 +24,17 @@ enum {
     TRAIT_GUSIM = 21,
     TRAIT_AKJU = 23,
     EFFECT_JEODOL = 1,
-    FN_SLOT_ACTIVE = 0x89E650, /* int (부대*, 칸) — 그 칸 개성 발동 중 */
+    FN_SLOT_ACTIVE = 0x8A0880, /* int (부대*, 칸) — 그 칸 개성 발동 중 */
     ROOT_TRAITS = 0x7DD18,
-    SLOT_ARMY_LAYOUT_TICK = 0x1398A58 + 2 * 8, /* CArmyInfoLayout */
-    FN_ARMY_LAYOUT_TICK = 0x1A7A40,
-    FN_DOTS_REFRESH = 0x1AC030,  /* int (점 레이아웃, 부대) */
+    SLOT_ARMY_LAYOUT_TICK = 0x139BA98 + 2 * 8, /* CArmyInfoLayout */
+    FN_ARMY_LAYOUT_TICK = 0x1A8D40,
+    FN_DOTS_REFRESH = 0x1AD330,  /* int (점 레이아웃, 부대) */
 };
 
-/* 저돌 판정 호출 지점(call 0x2B2DA0, edx = 1). 앞 바이트 문맥은 docs/02-traits.md */
-static const uint32_t SITES[] = {0x6B50B, 0xA1D15, 0xA1DDF, 0x7FB203};
+/* 저돌 판정 호출 지점(call 0x2B2DA0, edx = 1) */
+static const uint32_t SITES[] = {0x6C34B, 0xA2C75, 0xA2D3F, 0x7FD6D3};
 /* 발동개성 표시 판정 0x89E650 호출 지점 */
-static const uint32_t ACTIVE_SITES[] = {0x1A4B72, 0x1AC1E0, 0x903492, 0x903FEA, 0x929152};
+static const uint32_t ACTIVE_SITES[] = {0x1A5E72, 0x1AD4E0, 0x905932, 0x90648A, 0x92B602};
 
 typedef int(__fastcall *EffectSumFn)(void *, int);
 typedef int(__fastcall *ObjFn)(void *);

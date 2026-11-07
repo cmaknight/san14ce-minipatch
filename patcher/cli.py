@@ -29,7 +29,7 @@ def main(argv=None):
     if args.cmd == 'groups':
         for g in GROUPS:
             tag = '  (미구현)' if not g.implemented else ('  (적용 불가)' if g.blocked else '')
-            print(f'{g.id}  {g.label}{tag}')
+            print(f'{g.id}{f" (화면 {g.num})" if g.num else ""}  {g.label}{tag}')
         return 0
     if not args.game:
         ap.error('--game 또는 SAN14_DIR이 필요하다')

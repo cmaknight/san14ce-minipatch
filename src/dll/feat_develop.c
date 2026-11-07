@@ -1,4 +1,4 @@
-/* 그룹 9: AI·위임 군단 내정 균등 개발. 근거는 docs/09-develop.md.
+/* 그룹 9: AI·위임 군단 내정 균등 개발. 기능 설명은 docs/09-develop.md.
 
 중점(개발 항목) 규칙: 1000 미만 항목 중 Lv이 가장 낮은 것. Lv이 같으면 중시 항목, 그다음 상업 → 농업 → 병영.
 중시 항목은 군단 +0x1A(3 상, 2 농, 4 병), 없으면 군단장 성향 word +0x170/+0x172/+0x174 중 0보다 큰 최대값.
@@ -14,7 +14,7 @@ AI가 새로 임명할 때 정한 개발 항목도 다음 순 끝에 같은 규�
    후보: 같은 도시 소속(+0xE2), 신분 1~4, 행동 중(0x232240)·특수 무장(0x233110) 아님, 다른 지역을 맡지 않음,
    그 도시의 모병·훈련 담당(+0xCA/+0xCC) 아님(실행 함수가 그 역할을 정리해 버린다).
    능력: 개발 항목에 맞는 능력(상업 지력 2, 농업 정치 3, 병영 무력 1, 0x22FCE0 관직 보너스 포함). 지금 담당관은 겸임
-   감소(겸임 2곳 64%, 3곳 이상 44%, docs/09-develop.md)를 반영한다. 맡은 지역 수는 지역 담당관(+0x36)을 직접 센다.
+   감소(겸임 2곳 64%, 3곳 이상 44%)를 반영한다. 맡은 지역 수는 지역 담당관(+0x36)을 직접 센다.
    무장 +0x1E8은 임명 직후 갱신되지 않아(같은 무장이 순마다 다른 지역에 새로 임명됨, 2026-10-22 dll.log) 쓰지 않는다. 후보가 SWAP_GAIN 이상 높을 때만, 군단에서 이득이 가장 큰
    지역 하나를 바꾼다. 실행은 CDomesticOfficerSetNode와 같은 일괄 처리(0x25040 → 0x1F1A40 → 0x1ED290 → 정리)이고,
    명령서가 [0x1A483DC]개 이상일 때만 한다.
@@ -28,16 +28,16 @@ AI가 새로 임명할 때 정한 개발 항목도 다음 순 끝에 같은 규�
 #include <string.h>
 
 enum {
-    SITE_RECOUNT = 0x426B14, FN_RECOUNT = 0x257990,
-    FN_VALID = 0x32F500, FN_DIRECT_CORPS = 0x32E8D0, FN_REGION_FORCE = 0x22CC00,
-    FN_LV_COMMERCE = 0x22E2B0, FN_LV_FARM = 0x22C760, FN_LV_BARRACKS = 0x231170,
+    SITE_RECOUNT = 0x428E34, FN_RECOUNT = 0x2593E0,
+    FN_VALID = 0x331780, FN_DIRECT_CORPS = 0x330B50, FN_REGION_FORCE = 0x22E650,
+    FN_LV_COMMERCE = 0x22FD40, FN_LV_FARM = 0x22E1A0, FN_LV_BARRACKS = 0x232BD0,
     ROOT_PERSONS = 0x158, ROOT_NO_PERSON = 0x73A50, ROOT_REGIONS = 0x6CAF0, ROOT_CITIES = 0xDD38,
     ROOT_WORLD = 0x871E8,
     REGION_MAX = 0x1F4, DEV_MAX = 1000,
-    FN_ABILITY = 0x22FCE0, FN_BUSY = 0x232240, FN_SPECIAL = 0x233110,
-    FN_BATCH_INIT = 0x25040, FN_BATCH_ADD = 0x1F1A40, FN_BATCH_RUN = 0x1ED290,
-    FN_BATCH_FREE_PART = 0x9E00, FN_BATCH_FREE = 0x424D60, VT_BATCH_BASE = 0x1343680,
-    TOKEN_COST = 0x1A483DC, PERSON_MAX = 0x1770, CORPS_MAX = 0x33, SWAP_GAIN = 10,
+    FN_ABILITY = 0x231770, FN_BUSY = 0x233BE0, FN_SPECIAL = 0x234AB0,
+    FN_BATCH_INIT = 0x25330, FN_BATCH_ADD = 0x1F2E00, FN_BATCH_RUN = 0x1EE630,
+    FN_BATCH_FREE_PART = 0x9E00, FN_BATCH_FREE = 0x1BFFF0, VT_BATCH_BASE = 0x1346680,
+    TOKEN_COST = 0x1A4B428, PERSON_MAX = 0x1770, CORPS_MAX = 0x33, SWAP_GAIN = 10,
 };
 
 typedef int(__fastcall *ObjFn)(void *);
@@ -146,7 +146,7 @@ static void count_posts(uint8_t *root)
     }
 }
 
-/* 겸임 감소를 반영한 실효 능력(docs/09-develop.md: 겸임 0~1곳 100%, 2곳 64%, 3곳 이상 44%) */
+/* 겸임 감소를 반영한 실효 능력(겸임 0~1곳 100%, 2곳 64%, 3곳 이상 44%) */
 static int effective(unsigned id, int focus)
 {
     int n = id <= PERSON_MAX ? g_posts[id] : 0, a = ability(person(id), focus);

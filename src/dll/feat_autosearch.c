@@ -1,4 +1,4 @@
-/* 그룹 3: 턴 종료 시 자동 탐색. 근거는 docs/03-autosearch.md.
+/* 그룹 3: 턴 종료 시 자동 탐색. 기능 설명은 docs/03-autosearch.md.
 
 게임의 "탐색 → 자동탐색 → 결정"과 같은 처리를 턴 종료 확정 직후에 한다.
 - 조건: 자동탐색 화면(2단계)에서 마지막으로 고른 값. 게임이 월드 데이터에 저장한다(세이브에 포함).
@@ -10,32 +10,32 @@
 #include <string.h>
 
 enum {
-    SITE_TURN_END = 0x44D041,
-    FN_TURN_END = 0x451100,      /* void (int flag) */
-    FN_WORLD_DISTRICT = 0x32E8D0,/* CDistrictData* (CWorldData*) — 플레이어 군단 */
-    FN_PLAYER_CTRL = 0x233960,   /* int (district) — 플레이어 조작 군단 여부 */
-    FN_DISTRICT_FORCE = 0x40190, /* CForceData* (district) */
-    FN_FORCE_CITY_COUNT = 0x22A9D0, /* int (force) */
-    FN_MAP_CTOR = 0x1676E0,      /* std::map<CCityData*, int> 생성자(this) */
-    FN_MAP_DTOR = 0x167E20,      /* 소멸자(this) */
-    FN_LIST_INIT = 0x21E2B0,     /* ptr_list 초기화(this) */
-    FN_LIST_DTOR = 0x424D60,     /* ptr_list 소멸(this) */
-    FN_CANDIDATES = 0x713E60,    /* (state*, ptr_list*, 실행무장, 귀환, 중시) */
-    FN_SEARCH_AREA = 0x6DCE80,   /* CAreaData* (district, person, city) */
-    FN_SEARCH_EXEC = 0x1F2B80,   /* (cmd*, isPlayer) */
-    FN_ALLOC = 0x3F6E80,         /* 게임 operator new */
-    FN_VALID = 0x32F500,
-    VT_PTR_LIST = 0x13436B0,
-    VT_USER_STRATEGY = 0x13D63A0,/* CUserStrategyState: 전략 맵 명령 대기 */
-    STATE_COUNT = 0x1B620C0,
-    STATE_ARRAY = 0x1B620D0,
-    STATE_BUSY = 0x1B620E0,
-    LIST_NODES = 0x27D10F0,      /* 노드 표 포인터 */
-    LIST_NODE_COUNT = 0x27D1120,
-    PERSON_CITY = 0x277E278,     /* 무장 id → 목표 도시 표(6001칸). 자동탐색 화면이 열릴 때 할당(0x725469), 후보 계산이 채움 */
+    SITE_TURN_END = 0x44F281,
+    FN_TURN_END = 0x453310,      /* void (int flag) */
+    FN_WORLD_DISTRICT = 0x330B50,/* CDistrictData* (CWorldData*) — 플레이어 군단 */
+    FN_PLAYER_CTRL = 0x235300,   /* int (district) — 플레이어 조작 군단 여부 */
+    FN_DISTRICT_FORCE = 0x40C50, /* CForceData* (district) */
+    FN_FORCE_CITY_COUNT = 0x22C410, /* int (force) */
+    FN_MAP_CTOR = 0x168640,      /* std::map<CCityData*, int> 생성자(this) */
+    FN_MAP_DTOR = 0x168D60,      /* 소멸자(this) */
+    FN_LIST_INIT = 0x1AC60,     /* ptr_list 초기화(this) */
+    FN_LIST_DTOR = 0x1BFFF0,     /* ptr_list 소멸(this) */
+    FN_CANDIDATES = 0x7161D0,    /* (state*, ptr_list*, 실행무장, 귀환, 중시) */
+    FN_SEARCH_AREA = 0x6DF1B0,   /* CAreaData* (district, person, city) */
+    FN_SEARCH_EXEC = 0x1F3F50,   /* (cmd*, isPlayer) */
+    FN_ALLOC = 0x3F9390,         /* 게임 operator new */
+    FN_VALID = 0x331780,
+    VT_PTR_LIST = 0x13466B0,
+    VT_USER_STRATEGY = 0x13D9430,/* CUserStrategyState: 전략 맵 명령 대기 */
+    STATE_COUNT = 0x1B65110,
+    STATE_ARRAY = 0x1B65120,
+    STATE_BUSY = 0x1B65130,
+    LIST_NODES = 0x27D4140,      /* 노드 표 포인터 */
+    LIST_NODE_COUNT = 0x27D4170,
+    PERSON_CITY = 0x27812C8,     /* 무장 id → 목표 도시 표(6001칸). 자동탐색 화면이 열릴 때 할당(0x725469), 후보 계산이 채움 */
     PERSON_CITY_SIZE = 0xBB88,
-    FN_GAME_FREE = 0x3F6E90,
-    SEARCH_COST = 0x1A4856C,     /* 탐색 명령서 비용 */
+    FN_GAME_FREE = 0x3F93A0,
+    SEARCH_COST = 0x1A4B5B8,     /* 탐색 명령서 비용 */
     WORLD_OFF = 0x871E8,
 };
 

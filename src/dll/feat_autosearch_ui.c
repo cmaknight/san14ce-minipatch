@@ -1,4 +1,4 @@
-/* 그룹 3: 자동탐색 설정 화면(2단계)에 1~3행과 같은 모양의 4번째 행 "자동진행 [켬][끔]". 근거는 docs/03-autosearch.md.
+/* 그룹 3: 자동탐색 설정 화면(2단계)에 1~3행과 같은 모양의 4번째 행 "자동진행 [켬][끔]". 기능 설명은 docs/03-autosearch.md.
 
 2단계 레이아웃(리소스 "06_07_01_jinji_search_cn")은 장면 노드 트리다(노드 +0xB0 이름, +0xD0 부모,
 [+0xE8]+0x30/+0x34 로컬 위치, +0xF0/+0xF2 크기). 행 하나 = Null_* 묶음(라벨 배경 + 글자) + 라디오 칸.
@@ -7,39 +7,39 @@
   라벨 "자동진행", 라디오 0x24·0x27을 만들고 글자를 "켬/끔"으로 바꾼 뒤 라디오 컨트롤러로 묶는다.
 - 선택은 컨트롤러가 스스로 바꾼다(0x4502D0이 클릭 리스너를 단다). "결정"(슬롯 5)에서 선택값(+0x18)을 읽어 저장.
 - 복제 레이아웃과 컨트롤러는 화면을 닫을 때(슬롯 2) 게임과 같은 순서로 정리한다.
-켜짐 상태는 세이브별(월드 +0x17AC). UI 추가 방법 전반은 docs/03-autosearch.md.
+켜짐 상태는 세이브별(월드 +0x17AC).
 */
 #include "common.h"
 #include <string.h>
 
 enum {
-    VT_AUTOSEARCH = 0x1447260,
-    SLOT_DTOR = VT_AUTOSEARCH + 0 * 8, FN_DTOR = 0x6B16A0,
-    SLOT_EXIT = VT_AUTOSEARCH + 2 * 8, FN_EXIT = 0x71E210, /* 화면 닫기: 컨트롤러 삭제 후 레이아웃 +0x40·+0x28·삭제 */
-    SLOT_UPDATE = VT_AUTOSEARCH + 1 * 8, FN_UPDATE = 0x724B80, /* 화면 열기(한 번). 매 프레임이 아니다 */
-    SLOT_DECIDE = VT_AUTOSEARCH + 5 * 8, FN_DECIDE = 0x732290, /* 결정: 1~3행 컨트롤러 +0x18을 월드 +0x17B0..에 저장 */
+    VT_AUTOSEARCH = 0x144A2E8,
+    SLOT_DTOR = VT_AUTOSEARCH + 0 * 8, FN_DTOR = 0x6B3D50,
+    SLOT_EXIT = VT_AUTOSEARCH + 2 * 8, FN_EXIT = 0x7205C0, /* 화면 닫기: 컨트롤러 삭제 후 레이아웃 +0x40·+0x28·삭제 */
+    SLOT_UPDATE = VT_AUTOSEARCH + 1 * 8, FN_UPDATE = 0x727000, /* 화면 열기(한 번). 매 프레임이 아니다 */
+    SLOT_DECIDE = VT_AUTOSEARCH + 5 * 8, FN_DECIDE = 0x734620, /* 결정: 1~3행 컨트롤러 +0x18을 월드 +0x17B0..에 저장 */
     STATE_LAYOUT = 0x488,
-    FN_NEW = 0x3F6BC0,
-    FN_MEMSET = 0x101B9B0,      /* (dst, 0, n) */
-    FN_LAYOUT_CTOR = 0x864C50,
-    VT_UILAYOUT = 0x1342530,
-    FN_RES_CTOR = 0x92AB70,
+    FN_NEW = 0x3F90E0,
+    FN_MEMSET = 0x101E2B0,      /* (dst, 0, n) */
+    FN_LAYOUT_CTOR = 0x866FA0,
+    VT_UILAYOUT = 0x1345530,
+    FN_RES_CTOR = 0x92D020,
     VSLOT_LOAD = 0x178 / 8,     /* (layout, 0, 0, 0, 이름, 0, 0) */
     VSLOT_OPEN = 0x38 / 8,
-    FN_LAYOUT_PREP_OPEN = 0x873930,
-    FN_CHILD = 0x92CEE0,        /* widget* (res, id) */
-    FN_SET_VISIBLE = 0x92F810,  /* (res, id, bool) */
-    FN_MAKE_CONTROL = 0x92E430, /* widget* (res, id, a3, kind, 1, 0) */
-    FN_SET_CAPTION = 0x9310A0,  /* (res, id, const wchar_t*, 0xD) */
-    FN_BUTTON_TEXT = 0x85C9C0,  /* (button, const wchar_t*) */
-    VT_RADIO_CTRL = 0x13D64A0,
-    VT_RADIO_LIST = 0x13D6490,
-    FN_LIST_INIT = 0x21E2B0,
-    FN_RADIO_ADD = 0x4502D0,    /* (ctrl, button) */
-    FN_RADIO_SELECT = 0x451680, /* (ctrl, index) */
-    FN_DLG_REGISTER = 0x570440, /* (state, 칸, layout) — 화면 열기·닫기 애니메이션 그룹(state +0x60)에 등록. 본 레이아웃은 칸 1 */
-    FN_HELP_MGR = 0x84EC80,   /* (푸터 +0x180) → 하단 안내줄 관리자 */
-    FN_HELP_SET = 0x89B1C0,   /* (관리자, 버튼, const wchar_t*, 0) — 마우스를 올리면 하단 안내줄에 표시 */
+    FN_LAYOUT_PREP_OPEN = 0x875CE0,
+    FN_CHILD = 0x92F390,        /* widget* (res, id) */
+    FN_SET_VISIBLE = 0x931DA0,  /* (res, id, bool) */
+    FN_MAKE_CONTROL = 0x9309C0, /* widget* (res, id, a3, kind, 1, 0) */
+    FN_SET_CAPTION = 0x933630,  /* (res, id, const wchar_t*, 0xD) */
+    FN_BUTTON_TEXT = 0x85ECF0,  /* (button, const wchar_t*) */
+    VT_RADIO_CTRL = 0x13D9530,
+    VT_RADIO_LIST = 0x13D9520,
+    FN_LIST_INIT = 0x1AC60,
+    FN_RADIO_ADD = 0x452510,    /* (ctrl, button) */
+    FN_RADIO_SELECT = 0x453890, /* (ctrl, index) */
+    FN_DLG_REGISTER = 0x572CA0, /* (state, 칸, layout) — 화면 열기·닫기 애니메이션 그룹(state +0x60)에 등록. 본 레이아웃은 칸 1 */
+    FN_HELP_MGR = 0x5C1550,   /* (푸터 +0x180) → 하단 안내줄 관리자 */
+    FN_HELP_SET = 0x89D3F0,   /* (관리자, 버튼, const wchar_t*, 0) — 마우스를 올리면 하단 안내줄에 표시 */
     STATE_FOOTER = 0x4A8,
     ROW = 97,                   /* 행 간격(노드 y −37, −134, −231) */
 };
