@@ -5,7 +5,7 @@ import os
 # GUI 제목의 "(X 버전 패치 대응)". 지원 버전을 추가하면 같이 올린다
 SUPPORTED = '1.0.2'
 # 패처 자체 버전(창 제목, 배포 zip 이름). 배포할 때 올린다
-PATCHER_VERSION = '1.3'
+PATCHER_VERSION = '1.4'
 
 VERSIONS = {
     'B': {

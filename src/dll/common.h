@@ -61,18 +61,31 @@ static inline uint8_t *game_root(void) { return *(uint8_t **)RVA(ROOT_PTR_RVA); 
 /* 세이브에 저장되는 미사용 칸: 월드([root+0x871E8]) +0x17AC, 4바이트. 게임은 새 게임 초기화(0x325B80)에서
    0으로 채우고 직렬화(0x337A90)만 한다. 바이트별로 나눠 쓴다(0이면 기본값). */
 enum { WX_AUTO_ON = 0, WX_BASE_SELF = 1, WX_BASE_OTHER = 2, WX_MANUAL = 3 };
-static inline uint8_t *world_extra(void)
+static inline uint8_t *world_ptr(void)
 {
     uint8_t *root = game_root();
-    uint8_t *world = root ? *(uint8_t **)(root + 0x871E8) : NULL;
+    return root ? *(uint8_t **)(root + 0x871E8) : NULL;
+}
+static inline uint8_t *world_extra(void)
+{
+    uint8_t *world = world_ptr();
     return world ? world + 0x17AC : NULL;
+}
+/* 1번 명령서 배율: 월드 +0x17A8 u16 2개(0 자신 %, 1 타세력 %, 0이면 100). +0x16AC~+0x17AB(int 64개)의 끝 칸이다.
+   게임은 이 덩어리를 새 게임 때 0으로 채우고(0x328021) 직렬화(0x3161A0)만 한다 */
+#define WORLD_CMD 0x17A8
+static inline uint16_t *world_cmd(void)
+{
+    uint8_t *world = world_ptr();
+    return world ? (uint16_t *)(world + WORLD_CMD) : NULL;
 }
 
 /* 기능 초기화. 실패해도 게임은 그대로 진행한다. */
 int feat_jeodol_init(void);
 int feat_autosearch_init(void);
 int feat_tooltip_init(void);
-int feat_expert_init(void);
+/* 1번 숙련 모드 보강. base = 부대능력·범위·수동 전법·난이도 통상값, cmd = 명령서 배율(게임은 둘 다 켬, feat_expert.c) */
+int feat_expert_init(int base, int cmd);
 int feat_post_init(void);
 int feat_train_init(void);
 int feat_logs_init(void);

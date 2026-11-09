@@ -60,7 +60,7 @@ static BOOL CALLBACK init_once(PINIT_ONCE o, PVOID p, PVOID *c)
     if (g_cfg.trait_balance)
         feat_jeodol_init();
     if (g_cfg.expert_scaling)
-        feat_expert_init();
+        feat_expert_init(1, 1);
     if (g_cfg.auto_search)
         feat_autosearch_init();
     if (g_cfg.trait_tooltip)
